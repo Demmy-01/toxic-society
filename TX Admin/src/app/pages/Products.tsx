@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
-import { Plus, Search, Edit, Trash2, Grid, List, Upload, X, Loader2, ImageIcon, Check } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Grid, List, Upload, X, Loader2, ImageIcon, Check, XCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface ProductsProps {
@@ -64,6 +64,7 @@ export default function Products({ onLogout }: ProductsProps) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   // Data
   const [products, setProducts] = useState<DBProduct[]>([]);
@@ -221,6 +222,13 @@ export default function Products({ onLogout }: ProductsProps) {
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
+  const toggleStock = async (id: string, current: boolean) => {
+    setTogglingId(id);
+    await supabase.from('products').update({ in_stock: !current }).eq('id', id);
+    setProducts((prev) => prev.map((p) => p.id === id ? { ...p, in_stock: !current } : p));
+    setTogglingId(null);
+  };
+
   const toggleSize = (size: string) => {
     setForm((prev) => ({
       ...prev,
@@ -329,10 +337,15 @@ export default function Products({ onLogout }: ProductsProps) {
             <div key={product.id} className="bg-[#1a1a1a] border border-neutral-800 rounded-2xl overflow-hidden hover:border-neutral-700 transition-all group">
               <div className="aspect-square bg-[#0f0f0f] overflow-hidden relative">
                 {product.images?.[0] ? (
-                  <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img src={product.images[0]} alt={product.name} className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${!product.in_stock ? 'opacity-50' : ''}`} />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <ImageIcon className="w-10 h-10 text-neutral-700" />
+                  </div>
+                )}
+                {!product.in_stock && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="bg-black/70 text-white text-xs font-semibold px-3 py-1.5 rounded-lg tracking-widest uppercase">Sold Out</span>
                   </div>
                 )}
                 {product.tag && (
@@ -351,6 +364,13 @@ export default function Products({ onLogout }: ProductsProps) {
                   ) : (
                     <span className="text-base text-white">${product.price.toFixed(2)}</span>
                   )}
+                  <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full border ${
+                    product.in_stock
+                      ? 'bg-green-500/10 text-green-400 border-green-500/30'
+                      : 'bg-red-500/10 text-red-400 border-red-500/30'
+                  }`}>
+                    {product.in_stock ? 'In Stock' : 'Sold Out'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -358,6 +378,23 @@ export default function Products({ onLogout }: ProductsProps) {
                     className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#0f0f0f] text-neutral-400 rounded-lg hover:text-white transition-colors cursor-pointer text-sm"
                   >
                     <Edit className="w-3.5 h-3.5" /> Edit
+                  </button>
+                  <button
+                    onClick={() => toggleStock(product.id, product.in_stock)}
+                    disabled={togglingId === product.id}
+                    title={product.in_stock ? 'Mark as Sold Out' : 'Mark as In Stock'}
+                    className={`p-2 rounded-lg transition-colors cursor-pointer disabled:opacity-50 ${
+                      product.in_stock
+                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                        : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
+                    }`}
+                  >
+                    {togglingId === product.id
+                      ? <Loader2 className="w-4 h-4 animate-spin" />
+                      : product.in_stock
+                        ? <XCircle className="w-4 h-4" />
+                        : <CheckCircle className="w-4 h-4" />
+                    }
                   </button>
                   <button
                     onClick={() => handleDelete(product.id)}
@@ -383,6 +420,7 @@ export default function Products({ onLogout }: ProductsProps) {
                   <th className="text-left text-sm text-neutral-400 px-6 py-4">Category</th>
                   <th className="text-left text-sm text-neutral-400 px-6 py-4">Price</th>
                   <th className="text-left text-sm text-neutral-400 px-6 py-4">Sizes</th>
+                  <th className="text-left text-sm text-neutral-400 px-6 py-4">Status</th>
                   <th className="text-left text-sm text-neutral-400 px-6 py-4">Actions</th>
                 </tr>
               </thead>
@@ -404,9 +442,35 @@ export default function Products({ onLogout }: ProductsProps) {
                     <td className="px-6 py-4"><span className="text-white text-sm">${product.price.toFixed(2)}</span></td>
                     <td className="px-6 py-4"><span className="text-neutral-400 text-sm">{(product.sizes ?? []).join(', ') || '—'}</span></td>
                     <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs border ${
+                        product.in_stock
+                          ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                          : 'bg-red-500/20 text-red-400 border-red-500/30'
+                      }`}>
+                        {product.in_stock ? 'In Stock' : 'Sold Out'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEdit(product)} className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors cursor-pointer">
                           <Edit className="w-4 h-4 text-neutral-400 hover:text-white" />
+                        </button>
+                        <button
+                          onClick={() => toggleStock(product.id, product.in_stock)}
+                          disabled={togglingId === product.id}
+                          title={product.in_stock ? 'Mark as Sold Out' : 'Mark as In Stock'}
+                          className={`p-2 rounded-lg transition-colors cursor-pointer disabled:opacity-50 ${
+                            product.in_stock
+                              ? 'hover:bg-[#2a2a2a] text-red-400'
+                              : 'hover:bg-[#2a2a2a] text-green-400'
+                          }`}
+                        >
+                          {togglingId === product.id
+                            ? <Loader2 className="w-4 h-4 animate-spin" />
+                            : product.in_stock
+                              ? <XCircle className="w-4 h-4" />
+                              : <CheckCircle className="w-4 h-4" />
+                          }
                         </button>
                         <button onClick={() => handleDelete(product.id)} className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors cursor-pointer">
                           <Trash2 className="w-4 h-4 text-neutral-400 hover:text-[#dc2626]" />

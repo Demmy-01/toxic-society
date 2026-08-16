@@ -24,6 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!product.inStock) return;
     addItem({
       id: product.id,
       name: product.name,
@@ -99,9 +100,21 @@ export function ProductCard({ product }: ProductCardProps) {
           <ImageWithFallback
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${!product.inStock ? 'opacity-50' : ''}`}
           />
         </div>
+
+        {/* Sold Out overlay */}
+        {!product.inStock && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span
+              style={{ fontFamily: "'Inter', sans-serif", letterSpacing: "3px" }}
+              className="bg-black/65 text-white text-[11px] uppercase px-4 py-2 tracking-widest"
+            >
+              Sold Out
+            </span>
+          </div>
+        )}
 
         {/* Hover overlay with sizes */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300 pt-12 pb-12 px-3">
@@ -121,14 +134,23 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Quick Add */}
-        <button
-          onClick={handleQuickAdd}
-          style={{ backgroundColor: "#C41E3A", fontFamily: "'Inter', sans-serif", letterSpacing: "2px" }}
-          className="absolute bottom-0 left-0 right-0 py-3 text-white text-xs uppercase tracking-widest flex items-center justify-center gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer hover:bg-red-800"
-        >
-          <ShoppingBag size={13} />
-          Quick Add
-        </button>
+        {product.inStock ? (
+          <button
+            onClick={handleQuickAdd}
+            style={{ backgroundColor: "#C41E3A", fontFamily: "'Inter', sans-serif", letterSpacing: "2px" }}
+            className="absolute bottom-0 left-0 right-0 py-3 text-white text-xs uppercase tracking-widest flex items-center justify-center gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer hover:bg-red-800"
+          >
+            <ShoppingBag size={13} />
+            Quick Add
+          </button>
+        ) : (
+          <div
+            style={{ backgroundColor: "#555", fontFamily: "'Inter', sans-serif", letterSpacing: "2px" }}
+            className="absolute bottom-0 left-0 right-0 py-3 text-white text-xs uppercase tracking-widest flex items-center justify-center gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+          >
+            Sold Out
+          </div>
+        )}
       </div>
 
       {/* Info */}

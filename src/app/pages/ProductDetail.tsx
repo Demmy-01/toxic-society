@@ -444,19 +444,33 @@ export function ProductDetail() {
 
             {/* Add to cart */}
             <div className="flex gap-3 mb-8">
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedSize && product.sizes.length > 1}
-                style={{
-                  backgroundColor: added ? "#1a1a1a" : (!selectedSize && product.sizes.length > 1) ? "#ddd" : "#C41E3A",
-                  fontFamily: "'Bebas Neue', cursive",
-                  letterSpacing: "3px",
-                }}
-                className="flex-1 text-white py-4 text-xl flex items-center justify-center gap-3 transition-all duration-300 disabled:cursor-not-allowed"
-              >
-                <ShoppingBag size={18} />
-                {added ? "Added to Bag!" : "Add to Bag"}
-              </button>
+              {product.inStock ? (
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!selectedSize && product.sizes.length > 1}
+                  style={{
+                    backgroundColor: added ? "#1a1a1a" : (!selectedSize && product.sizes.length > 1) ? "#ddd" : "#C41E3A",
+                    fontFamily: "'Bebas Neue', cursive",
+                    letterSpacing: "3px",
+                  }}
+                  className="flex-1 text-white py-4 text-xl flex items-center justify-center gap-3 transition-all duration-300 disabled:cursor-not-allowed"
+                >
+                  <ShoppingBag size={18} />
+                  {added ? "Added to Bag!" : "Add to Bag"}
+                </button>
+              ) : (
+                <button
+                  disabled
+                  style={{
+                    backgroundColor: "#888",
+                    fontFamily: "'Bebas Neue', cursive",
+                    letterSpacing: "3px",
+                  }}
+                  className="flex-1 text-white py-4 text-xl flex items-center justify-center gap-3 cursor-not-allowed"
+                >
+                  Sold Out
+                </button>
+              )}
               <button
                 onClick={() => toggleItem(product)}
                 style={{ borderColor: wishlisted ? "#C41E3A" : "#ddd", color: wishlisted ? "#C41E3A" : "#555" }}

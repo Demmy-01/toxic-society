@@ -69,11 +69,9 @@ export async function fetchProducts(): Promise<Product[]> {
 
   if (!data || data.length === 0) return [];
 
-  // Keep products with no drop OR products attached to a LIVE drop
-  const filtered = data.filter(p => !p.drop_id || liveDropIds.has(p.drop_id));
-  console.log(`🔍 fetchProducts: ${filtered.length} products visible after drop filter`);
+  console.log(`🔍 fetchProducts: returning all ${data.length} products from Supabase (including out-of-stock & all drops)`);
 
-  return filtered.map((p) => ({
+  return data.map((p) => ({
     id: p.id,
     name: p.name,
     price: Number(p.price),

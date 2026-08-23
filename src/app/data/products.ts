@@ -54,11 +54,10 @@ export async function fetchProducts(): Promise<Product[]> {
   const liveDropIds = new Set(liveDrops?.map(d => d.id) ?? []);
   console.log('🔴 LIVE drop IDs:', [...liveDropIds]);
 
-  // Fetch ALL products that are in stock with their drop info
+  // Fetch ALL products (including out-of-stock) with their drop info
   const { data, error } = await supabase
     .from('products')
     .select('*, drops(name)')
-    .eq('in_stock', true)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -66,7 +65,7 @@ export async function fetchProducts(): Promise<Product[]> {
     return [];
   }
 
-  console.log(`✅ fetchProducts: got ${data?.length ?? 0} in-stock products from Supabase`);
+  console.log(`✅ fetchProducts: got ${data?.length ?? 0} products from Supabase`);
 
   if (!data || data.length === 0) return [];
 

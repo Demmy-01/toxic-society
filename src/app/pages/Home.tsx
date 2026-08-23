@@ -247,6 +247,8 @@ export function Home() {
                   src={image}
                   alt={category}
                   className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-300"
+                  loading="lazy"
+                  decoding="async"
                 />
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />

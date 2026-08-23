@@ -80,6 +80,7 @@ function GalleryModal({
           className="max-h-full max-w-full object-contain select-none"
           style={{ maxHeight: "80vh", maxWidth: "80vw" }}
           draggable={false}
+          decoding="async"
         />
       </div>
 
@@ -123,7 +124,7 @@ function GalleryModal({
               }}
               aria-label={`Go to photo ${i + 1}`}
             >
-              <img src={src} alt="" className="w-full h-full object-cover" draggable={false} />
+              <img src={src} alt="" className="w-full h-full object-cover" draggable={false} loading="lazy" decoding="async" />
             </button>
           ))}
         </div>
@@ -242,7 +243,7 @@ export function ProductDetail() {
                     }}
                     aria-label={`Select photo ${i + 1}`}
                   >
-                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>
@@ -261,6 +262,7 @@ export function ProductDetail() {
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   draggable={false}
+                  decoding="async"
                 />
 
                 {/* Zoom hint */}

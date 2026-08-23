@@ -102,8 +102,7 @@ export function Drops() {
           const { data: prods } = await supabase
             .from("products")
             .select("*")
-            .in("drop_id", ids)
-            .eq("in_stock", true);
+            .in("drop_id", ids);
 
           if (prods) {
             const map: Record<string, DBProduct[]> = {};
@@ -395,6 +394,8 @@ export function Drops() {
                           src={drop.image_url}
                           alt={drop.name}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                         {/* Subtle gradient overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
@@ -494,6 +495,8 @@ export function Drops() {
                         alt=""
                         className="w-full h-full object-cover"
                         style={{ filter: "blur(8px)", transform: "scale(1.12)", opacity: 0.55 }}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-900" />
@@ -560,6 +563,8 @@ export function Drops() {
                         src={drop.image_url}
                         alt={drop.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-70"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-800" />
